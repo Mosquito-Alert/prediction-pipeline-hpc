@@ -1,79 +1,64 @@
-/home/ccerecedo/Bites_MA_Spain/
+## Fetch data
 
-Nightly:
--> /leov1/bites_ma_spain/data/era5/YYYY-MM-DD.grib		(@epou)
+1. Download ERA5 for Spain (@epou) -> `./data/era5/spain/YYYY-MM-DD.grib`
+2. Convert ERA5 grib to CSV format applying a clipping mask for Spain (@CatuCerecedo)
+	```
+	R data/era5/grib2csv.R
+		--input ./data/era5/spain/YYYY-MM-DD.grib
+		--boundary_mask ./data/boundaries/gadm41_ESP_simplified.gpkg
+		--boundary_column_id code
+		--output ./data/era5/spain/YYYY-MM-DD.csv
+	```
+3. Fetch bite reports (@epou) -> `./data/bite_reports/YYYY-MM-DD.csv`
+4. (Once) Download CORINE landcover -> `./data/corine_landcover/u2018.....tif`
+5. (Once) Apply Spain mask to CORINE landcover (@CatuCerecedo) -> `./data/corine_landcover/u2018.....csv`
 
+## Models
 
-R grib2csv.R
-	--input_dir /leov1/bites_ma_spain/data/era5/
-	--format YYYY-MM-DD.grid
-	--boundary_mask /leov1/botes_ma_spain/data/boundaries/gadm41_ESP_simplified.gpkg
-	--boundary_column_id code
-	--date YYYY-MM-DD
-	--output /leov1/bites_ma_spain/data/era5/YYYY-MM-DD.csv
-	
-	
-	https://cran.r-project.org/web/packages/argparse/refman/argparse.html
+### Bite BRSM model0
 
-		library(argparse)
+#### Data preparation
+1. Apply lags to ERA5 data (@CatuCerecedo)
+	```
+	R models/bites_brms0/preprocess/process_era5.R
+		--era5_dir ./data/era5/spain/
+		--format 'YYYY-MM-DD.csv'
+		--output ./outputs/bites_brsm0/processed_era5/YYYY-MM-DD.csv
+	```
+2. Generate features (@CatuCerecedo)
+	```
+	R models/bites_brms0/preprocess/generate_features.R
+		--bites_csv ./data/bite_reports/YYYY-MM-DD.csv
+		--boundary_mask ./data/boundaries/gadm41_ESP_simplified.gpkg 
+		--boundary_column_id code 
+		--landcover_csv ./data/corine_landcover/u2018.....csv 
+		--era5_csv ./outputs/bites_brsm0/processed_era5/YYYY-MM-DD.csv
+		--output ./outputs/bites_brsm0/features/YYYY-MM-DD.csv 
+	```
 
-		parser <- ArgumentParser()
-		parser$add_argument("--input", help = "Path to data file", required = TRUE)
-		parser$add_argument("--output", help = "Path to store resulting data file", required = TRUE)
-		parser$add_argument("--boundary_mask", help = "Path to get vector boundaries to apply mask", required = TRUE)
+#### Train
+1. Concat multiple daily features (@CatuCerecedo)
+```
+	R models/bites_brms0/preprocess/concat_features.R
+		--features_dir ./outputs/bites_brsm0/features/
+		--format 'YYYY-MM-DD.csv'
+		--from_date 2020-01-01
+		--to_date 2025-01-02
+		--output ./outputs/bites_brsm0/features/last_concat.csv 
+```
+2. Train (@CatuCerecedo)
+```
+	R models/bites_brms0/train.R
+		--data ./outputs/bites_brsm0/features/last_concat.csv 
+		--output_dir ./output/bites_brsm0/model/train.rds
+```
 
-		args <- parser$parse_args()
-
-		print(args$input)
-		print(args$output)
-		print(args$boundary_mask)
-
-	-> /leov1/bites_ma_spain/data/era5/YYYY-MM-DD.csv     (@catu, poner tambien los lags aqui)
-
-	
-Download Bites from API -> (@epou, mirar CSV que vaig enviar a la maria)
-	
--> /leov1/bites_ma_spain/data/bites_ma/YYYY-MM-DD.csv
-
--> /leov1/bites_ma_spain/data/boundaries/gadm41_ESP_simplified.gpkg
-
-
-/leov1/bites_ma_spain/data/corine_landcover/u2018.....tif
-/leov1/bites_ma_spain/data/corine_landcover/u2018.....csv   (@catu, optional script que acepta argumentos de entrada)
-
-(preparing_data_mun_template_bites)
-R merge.R 
-	--bites_csv /leov1/bites_ma_spain/data/bites_ma/YYYY-MM-DD.csv
-	--boundary_mask /leov1/botes_ma_spain/data/boundaries/gadm41_ESP_simplified.gpkg 
-	--boundary_column_id code 
-	--landcover_csv /leov1/bites_ma_spain/data/corine_landcover/u2018.....csv 
-	--era5_csv /leov1/bites_ma_spain/data/era5/YYYY-MM-DD.csv
-	--output /leov1/bites_ma_spain/data/model_input/YYYY-MM-DD.csv 
-
-
-/leov1/bites_ma_spain/data/model_input/YYYY-MM-DD.csv
-
-
-R concatDateRange.R
-	--from_date 2020-01-01.csv
-	--to_date 2025-01-02.csv
-	--output /leov1/bites_ma_spain/data/model_input/last_concat.csv
-
-
-/leov1/bites_ma_spain/data/model_input/last_concat.csv
-
--------------------------------------------------
-
-MODEL TRAINING (every 15 days)
-
-R train.R
-	--data /leov1/bites_ma_spain/data/model_input/last.csv
-	--output_dir /leov1/bites_ma_spain/output/brms/train.rds
-
-
-MODEL PREDICT (1 days)
-R predict.R
-	--model_rds /leov1/bites_ma_spain/output/brms/train.rds
-	--landcover_csv /leov1/bites_ma_spain/data/corine_landcover/u2018.....csv 
-	--era_csv /leov1/bites_ma_spain/data/era5/YYYY-MM-DD.csv
-	--output /leov1/bites_ma_spain/output/brms/predict/YYYY-MM-DD.csv
+#### Predict
+1. Predict (@CatuCerecedo)
+```
+	R predict.R
+		--model_rds ./output/bites_brsm0/model/train.rds
+		--landcover_csv ./data/corine_landcover/u2018.....csv 
+		--era_csv ./data/era5/spain/YYYY-MM-DD.csv
+		--output ./output/bites_brsm0/predictions/YYYY-MM-DD.csv
+```
