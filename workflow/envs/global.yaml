@@ -1,0 +1,16 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - cfgrib=0.9.15.0
+  - cdsapi=0.7.6
+  - dask=2025.7.0
+  - flatten_json=0.1.14
+  - geopandas=1.1.1
+  - netCDF4=1.7.2
+  - rasterio=1.4.3
+  - rasterstats=0.20.0
+  - regionmask=0.13.0
+  - xarray=2025.7.1
+  - pip:
+      - mosquito-alert @ git+https://github.com/Mosquito-Alert/mosquito-alert-python-sdk.git@0.1.21

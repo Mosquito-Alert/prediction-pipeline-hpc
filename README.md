@@ -1,64 +1,91 @@
-## Fetch data
+# Bite prediction - Pipeline HPC
 
-1. Download ERA5 for Spain (@epou) -> `./data/era5/spain/YYYY-MM-DD.grib`
-2. Convert ERA5 grib to CSV format applying a clipping mask for Spain (@CatuCerecedo)
-	```
-	R data/era5/grib2csv.R
-		--input ./data/era5/spain/YYYY-MM-DD.grib
-		--boundary_mask ./data/boundaries/gadm41_ESP_simplified.gpkg
-		--boundary_column_id code
-		--output ./data/era5/spain/YYYY-MM-DD.csv
-	```
-3. Fetch bite reports (@epou) -> `./data/bite_reports/YYYY-MM-DD.csv`
-4. (Once) Download CORINE landcover -> `./data/corine_landcover/u2018.....tif`
-5. (Once) Apply Spain mask to CORINE landcover (@CatuCerecedo) -> `./data/corine_landcover/u2018.....csv`
+This repository contains the code for running a high-performance computing (HPC) pipeline that predicts the probability of mosquito bites using the [BRSM model](https://github.com/Mosquito-Alert/Bites_MA_Spain).
 
-## Models
+The pipeline is orchestrated using [Snakemake](https://snakemake.github.io) which automates tasks related to data preparation, model training, and prediction.
 
-### Bite BRSM model0
+## Data sources
+The model needs data from the following data sources:
+- Mosquito Bite Reports from Mosquito Alert (variable used to train and to be predicted)
+- [Sampling effort data](https://github.com/Mosquito-Alert/sampling_effort_data) - from Mosquito Alert.
+- [ERA5-Land](https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=overview) - historical climate reanalysis data.
+- [CORINE Landcover](https://land.copernicus.eu/en/products/corine-land-cover) – land use/cover information for Europe.
 
-#### Data preparation
-1. Apply lags to ERA5 data (@CatuCerecedo)
-	```
-	R models/bites_brms0/preprocess/process_era5.R
-		--era5_dir ./data/era5/spain/
-		--format 'YYYY-MM-DD.csv'
-		--output ./outputs/bites_brsm0/processed_era5/YYYY-MM-DD.csv
-	```
-2. Generate features (@CatuCerecedo)
-	```
-	R models/bites_brms0/preprocess/generate_features.R
-		--bites_csv ./data/bite_reports/YYYY-MM-DD.csv
-		--boundary_mask ./data/boundaries/gadm41_ESP_simplified.gpkg 
-		--boundary_column_id code 
-		--landcover_csv ./data/corine_landcover/u2018.....csv 
-		--era5_csv ./outputs/bites_brsm0/processed_era5/YYYY-MM-DD.csv
-		--output ./outputs/bites_brsm0/features/YYYY-MM-DD.csv 
-	```
+## Data preparation
 
-#### Train
-1. Concat multiple daily features (@CatuCerecedo)
-```
-	R models/bites_brms0/preprocess/concat_features.R
-		--features_dir ./outputs/bites_brsm0/features/
-		--format 'YYYY-MM-DD.csv'
-		--from_date 2020-01-01
-		--to_date 2025-01-02
-		--output ./outputs/bites_brsm0/features/last_concat.csv 
-```
-2. Train (@CatuCerecedo)
-```
-	R models/bites_brms0/train.R
-		--data ./outputs/bites_brsm0/features/last_concat.csv 
-		--output_dir ./output/bites_brsm0/model/train.rds
+### Download CORINE Land Cover
+
+Please download the CORINE Land Cover dataset manually and place it in the following path:
+`data/corine_landcover/U2018_CLC2018_V2020_20u1.tif`
+
+### Provide vector file (for zonal statistics)
+
+Provide a GeoPackage file containing polygons, with:
+- Only one layer
+- Two columns: code (unique ID) and name
+
+*IMPORTANT*: Update `config/config.yaml` to reflect the path to this file.
+
+### CDS API Key
+
+To access ERA5-Land data, you'll need an API key from the Copernicus Climate Data Store. Follow instruction at: https://cds.climate.copernicus.eu/how-to-api
+
+## Deployment
+
+### 1.Install Snakemake
+
+We recommend using [Mamba](https://mamba.readthedocs.io/en/latest/) (a faster drop-in replacement for Conda). If you don't have Conda or Mamba installed, consider installing [Miniforge](https://github.com/conda-forge/miniforge).
+
+Install Snakemake, Snakedeploy, and necessary plugins:
+
+```bash
+mamba create -c conda-forge -c bioconda --name snakemake snakemake=9.8.1 snakedeploy=0.11.0
 ```
 
-#### Predict
-1. Predict (@CatuCerecedo)
+If you're running on an HPC with SLURM, install additional plugins:
+```bash
+mamba install snakemake-executor-plugin-slurm=1.5.0 snakemake-storage-plugin-fs=1.1.2
 ```
-	R predict.R
-		--model_rds ./output/bites_brsm0/model/train.rds
-		--landcover_csv ./data/corine_landcover/u2018.....csv 
-		--era_csv ./data/era5/spain/YYYY-MM-DD.csv
-		--output ./output/bites_brsm0/predictions/YYYY-MM-DD.csv
+
+Activate the environment:
+
+```bash
+conda activate snakemake
 ```
+
+### 2. Deploy the workflow
+
+Create and move into a project directory:
+```bash
+mkdir -p path/to/project-workdir
+cd path/to/project-workdir
+```
+
+Deploy the workflow using Snakedeploy:
+```bash
+snakedeploy deploy-workflow <URL_TO_THIS_REPO> . --tag <DESIRED_TAG>
+```
+
+This will create two directories:
+- `workflow/`: contains the deployed Snakemake module
+- `config/`: contains configuration files
+
+### 3. Configure workflow
+
+Edit `config/config.yaml` to specify your settings (paths, parameters, etc.) according to your data and environment
+
+### 4. Run workflow
+
+#### Local execution with conda
+
+```bash
+snakemake --cores all --sdm conda
+```
+
+#### HPC execution with SLURM
+Use the provided SLURM profile:
+```bash
+snakemake --cores all --sdm conda --profile slurm
+```
+
+For advanced features such as cluster execution, cloud deployments, and workflow customization, see the [Snakemake documentation](https://snakemake.readthedocs.io/).
