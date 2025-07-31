@@ -4,7 +4,7 @@ wildcard_constraints:
     month=r"(0[1-9]|1[0-2])",
     day=r"(0[1-9]|[12]\d|3[01])"
 
-configfile: "config/config.yaml"
+configfile: "../config/config.yaml"
 
 include: "rules/generate_features.smk"
 
