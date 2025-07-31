@@ -8,8 +8,10 @@ rule download_era5:
         cpus_per_task=1
     conda:
         "../envs/global.yaml"
-    shell:
-        "python3 ../scripts/preprocess/era5/download.py --year {wildcards.year} --month {wildcards.month} --day {wildcards.day} --clip_vector {input.vector} --output_file {output}"
+    params:
+        date=lambda wildcards: f"{wildcards.year}-{wildcards.month}-{wildcards.day}",
+    script:
+        "../scripts/preprocess/era5/download.py"
 
 rule daily_stats_era5:
     input:
