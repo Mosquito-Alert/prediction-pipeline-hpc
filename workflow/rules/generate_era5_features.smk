@@ -9,7 +9,7 @@ rule download_era5:
     conda:
         "../envs/global.yaml"
     shell:
-        "python3 workflow/scripts/preprocess/era5/download.py --year {wildcards.year} --month {wildcards.month} --day {wildcards.day} --clip_vector {input.vector} --output_file {output}"
+        "python3 ./workflow/scripts/preprocess/era5/download.py --year {wildcards.year} --month {wildcards.month} --day {wildcards.day} --clip_vector {input.vector} --output_file {output}"
 
 rule daily_stats_era5:
     input:
