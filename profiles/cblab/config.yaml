@@ -7,10 +7,12 @@ default-resources:
   slurm_partition: ceab
   mem_mb: attempt * 1500
   runtime: attempt * 10
+  tmpdir: /lscratch/tmp
   # slurm_extra: "--mail-type=BEGIN,END,FAIL --mail-user=usuario@correo"
 jobs: 30
 latency-wait: 60
 retries: 1
+
 default-storage-provider: fs
 remote-job-local-storage-prefix: /lscratch/$USER/$JOBID
 local-storage-prefix: /home/$USER
