@@ -3,6 +3,13 @@ from datetime import datetime
 import numpy as np
 import xarray as xr
 
+try:
+    input_file_default = snakemake.input[0]
+    output_file_default = snakemake.output[0]
+except NameError:
+    input_file_default = None
+    output_file_default = None
+
 # TODO: check why there's more than 1 day.
 
 def main(input_file: str, output_file: str):
@@ -46,8 +53,8 @@ def main(input_file: str, output_file: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Aggregate ERA5 GRIB data daily.')
-    parser.add_argument('--input_file', help='Input GRIB file path')
-    parser.add_argument('--output_file', help='Output NetCDF file path')
+    parser.add_argument('--input_file', type=str, required=(input_file_default is None), default=input_file_default, help='Input GRIB file path')
+    parser.add_argument('--output_file', type=str, required=(output_file_default is None), default=output_file_default, help='Output NetCDF file path')
 
     args = parser.parse_args()
 

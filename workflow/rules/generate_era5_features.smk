@@ -20,8 +20,8 @@ rule daily_stats_era5:
         "data/era5/daily_stats/{year}-{month}-{day}.nc"
     conda:
         "../envs/global.yaml"
-    shell:
-        "python3 ../scripts/preprocess/era5/daily_stats.py --input_file {input} --output_file {output}"
+    script:
+        "../scripts/preprocess/era5/daily_stats.py"
 
 rule zonal_stats_era5:
     input:
@@ -31,8 +31,8 @@ rule zonal_stats_era5:
         "data/era5/zonal_stats/{year}-{month}-{day}.nc"
     conda:
         "../envs/global.yaml"
-    shell:
-        "python3 workflow/scripts/preprocess/era5/zonal_stats.py --input_file {input.era5} --vector_file {input.vector} --output_file {output}"
+    script:
+        "../scripts/preprocess/era5/zonal_stats.py"
 
 from datetime import datetime, timedelta
 
@@ -51,5 +51,5 @@ rule generate_era5_features:
         "outputs/features/era5/{year}-{month}-{day}.csv"
     conda:
         "../envs/global.yaml"
-    shell:
-        "python3 workflow/scripts/preprocess/era5/generate_features.py --input_files {input} --output_file {output}"
+    script:
+        "../scripts/preprocess/era5/generate_features.py"

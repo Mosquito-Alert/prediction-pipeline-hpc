@@ -4,6 +4,15 @@ import numpy as np
 import regionmask
 import xarray as xr
 
+try:
+    input_file_default = snakemake.input["era5"]
+    vector_file_default = snakemake.input["vector"]
+    output_file_default = snakemake.output[0]
+except NameError:
+    input_file_default = None
+    vector_file_default = None
+    output_file_default = None
+
 def main(input_file, vector_file, output_file):
     ds = xr.open_dataset(input_file)
     ds = ds.interp(
@@ -44,9 +53,9 @@ def main(input_file, vector_file, output_file):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compute region means from ERA5 dataset using vector mask.")
-    parser.add_argument("--input_file", type=str, required=True, help="Input NetCDF file path")
-    parser.add_argument("--vector_file", type=str, required=True, help="Vector file path (e.g. GeoPackage)")
-    parser.add_argument("--output_file", type=str, required=True, help="Output NetCDF file path")
+    parser.add_argument("--input_file", type=str, required=(input_file_default is None), default=input_file_default, help="Input NetCDF file path")
+    parser.add_argument("--vector_file", type=str, required=(vector_file_default is None), default=vector_file_default, help="Vector file path (e.g. GeoPackage)")
+    parser.add_argument("--output_file", type=str, required=(output_file_default is None), default=output_file_default, help="Output NetCDF file path")
 
     args = parser.parse_args()
     main(args.input_file, args.vector_file, args.output_file)

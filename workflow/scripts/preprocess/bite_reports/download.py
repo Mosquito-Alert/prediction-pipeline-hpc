@@ -5,6 +5,14 @@ import pandas as pd
 
 import mosquito_alert
 
+# Try to import snakemake variables, if running within Snakemake
+try:
+    date_default = snakemake.params["date"]
+    output_file_default = snakemake.output[0]
+except NameError:
+    date_default = None
+    output_file_default = None
+
 def main(date: str, output_file: str):
     bites = []
 
@@ -32,8 +40,8 @@ def main(date: str, output_file: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download mosquito bites for a specific date.")
-    parser.add_argument("--date", type=str, help="Date in YYYY-MM-DD format")
-    parser.add_argument("--output_file", type=str, help="Output CSV file path")
+    parser.add_argument("--date", type=str, required=(date_default is None), default=date_default, help="Date in YYYY-MM-DD format")
+    parser.add_argument("--output_file", type=str, required=(output_file_default is None), default=output_file_default, help="Output CSV file path")
     args = parser.parse_args()
 
     main(args.date, args.output_file)
