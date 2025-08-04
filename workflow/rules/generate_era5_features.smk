@@ -31,6 +31,8 @@ rule zonal_stats_era5:
         "data/era5/zonal_stats/{year}-{month}-{day}.nc"
     conda:
         "../envs/global.yaml"
+    resources:
+        mem_mb=30000,
     script:
         "../scripts/preprocess/era5/zonal_stats.py"
 
