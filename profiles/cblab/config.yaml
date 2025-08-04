@@ -15,7 +15,7 @@ retries: 1
 
 default-storage-provider: fs
 # remote-job-local-storage-prefix: /lscratch/$USER/$JOBID
-remote-job-local-storage-prefix: /lscratch/$USER
+remote-job-local-storage-prefix: /lscratch/$USER/$SLURM_JOB_ID
 local-storage-prefix: /home/$USER
 shared-fs-usage:
   - persistence
