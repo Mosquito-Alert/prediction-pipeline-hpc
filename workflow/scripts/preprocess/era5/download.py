@@ -4,7 +4,7 @@ from datetime import datetime
 import fiona
 from typing import Optional
 
-CLIPPING_BUFFER = 0.1  # Buffer in degrees for clipping
+CLIPPING_BUFFER = 0.5  # Buffer in degrees for clipping
 
 # Try to import snakemake variables, if running within Snakemake
 try:
@@ -29,8 +29,9 @@ def main(date: datetime, output_file: str, clip_vector: Optional[str] = None):
             ]
 
     c.retrieve(
-        name='reanalysis-era5-land',
+        name='reanalysis-era5-single-levels',
         request={
+            "product_type": ["reanalysis"],
             "variable": [
                 "2m_dewpoint_temperature",
                 "2m_temperature",
