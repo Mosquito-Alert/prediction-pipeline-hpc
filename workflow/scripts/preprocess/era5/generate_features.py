@@ -5,7 +5,7 @@ try:
     input_files_default = snakemake.input
     output_file_default = snakemake.output[0]
 except NameError:
-    input_file_default = None
+    input_files_default = None
     output_file_default = None
 
 def main(input_files, output_file):
@@ -27,7 +27,7 @@ def main(input_files, output_file):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compute region means from ERA5 dataset using vector mask.")
-    parser.add_argument("--input_files", nargs='+', required=(input_file_default is None), default=input_file_default, help="Input NetCDF file to combine stats from")
+    parser.add_argument("--input_files", nargs='+', required=(input_files_default is None), default=input_files_default, help="Input NetCDF file to combine stats from")
     parser.add_argument("--output_file", type=str, required=(output_file_default is None), default=output_file_default, help="Output CSV file")
 
     args = parser.parse_args()
