@@ -14,7 +14,8 @@ latency-wait: 60
 retries: 1
 
 default-storage-provider: fs
-remote-job-local-storage-prefix: /lscratch/$USER/$JOBID
+# remote-job-local-storage-prefix: /lscratch/$USER/$JOBID
+remote-job-local-storage-prefix: /lscratch/$USER
 local-storage-prefix: /home/$USER
 shared-fs-usage:
   - persistence
