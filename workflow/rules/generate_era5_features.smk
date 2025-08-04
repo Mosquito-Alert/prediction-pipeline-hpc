@@ -2,7 +2,7 @@ rule download_era5:
     input:
         vector="data/gadm_410_esp_simplified.gpkg"
     output:
-        temp("data/era5/{year}-{month}-{day}.nc", group_jobs=True)
+        temp("data/era5/{year}-{month}-{day}.grib", group_jobs=True)
     resources:
         api_calls=5,
         cpus_per_task=1
