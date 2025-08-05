@@ -1,7 +1,10 @@
 import argparse
 from datetime import datetime
 import numpy as np
+import os
+import tempfile
 import xarray as xr
+import zipfile
 
 try:
     input_file_default = snakemake.input[0]
@@ -13,14 +16,31 @@ except NameError:
 # TODO: check why there's more than 1 day.
 
 def main(input_file: str, output_file: str):
-    ds = xr.open_dataset(input_file)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Unzip the input file
+        with zipfile.ZipFile(input_file, 'r') as zip_ref:
+            zip_ref.extractall(tmpdir)
+
+        # Find the unzipped NetCDF file
+        extracted_files = [os.path.join(tmpdir, f) for f in os.listdir(tmpdir) if f.endswith('.nc')]
+        if not extracted_files:
+            raise FileNotFoundError("No NetCDF files found in the unzipped content.")
+
+        ds = xr.open_mfdataset(extracted_files)
 
     # Calculate mean of d2m and t2m
-    d2m_mean = ds['d2m'].mean(dim=['valid_time']) - 273.15   # Convert to Celsius
-    t2m_mean = ds['t2m'].mean(dim=['valid_time']) - 273.15   # Convert to Celsius
+    d2m_celsius = ds['d2m'] - 273.15  # Convert from Kelvin to Celsius
+    t2m_celsius = ds['t2m'] - 273.15  # Convert from Kelvin to Celsius
     # Relative humidity calculation: Magnus-Tetens
-    rh_mean = (100 * (np.exp(17.62 * ds['d2m'] / (243.12 + ds['d2m'])) / np.exp(17.62 * ds['t2m'] / (243.12 + ds['t2m'])))).mean(dim=['valid_time'])
+    # rh_mean = (100 * (np.exp(17.62 * d2m_celsius / (243.12 + d2m_celsius)) / np.exp(17.62 * t2m_celsius / (243.12 + t2m_celsius)))).mean(dim=['valid_time'])
+    # See: https://earthscience.stackexchange.com/questions/16570/how-to-calculate-relative-humidity-from-temperature-dew-point-and-pressure
+    m = 7.591386
+    Tn = 240.7263
+    rh_mean = 100 * 10 ** (m * ((d2m_celsius/(d2m_celsius+Tn))-(t2m_celsius/(t2m_celsius+Tn)))).mean(dim=['valid_time'])
 
+    d2m_mean = d2m_celsius.mean(dim=['valid_time'])
+    t2m_mean = t2m_celsius.mean(dim=['valid_time'])
     # Calculate sum of tp
     tp_sum = ds['tp'].sum(dim=['valid_time'])
 

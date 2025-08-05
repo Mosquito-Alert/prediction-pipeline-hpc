@@ -50,7 +50,7 @@ def main(date: datetime, output_file: str, clip_vector: Optional[str] = None):
                 "18:00", "19:00", "20:00",
                 "21:00", "22:00", "23:00"
             ],
-            "data_format": "grib",
+            "data_format": "netcdf",
             "download_format": "unarchived",
             **extra_requests
         },
