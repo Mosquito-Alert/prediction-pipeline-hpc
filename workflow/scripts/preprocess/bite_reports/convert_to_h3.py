@@ -12,7 +12,7 @@ except NameError:
     output_file_default = None
 
 def main(input_file: str, output_file: str, h3_res: int):
-    df = pd.read_csv(input_file)
+    df = pd.read_csv(input_file, parse_dates=['created_at'])
     df = df[df['counts_total'] > 0]
 
     if not df.empty:
@@ -24,9 +24,10 @@ def main(input_file: str, output_file: str, h3_res: int):
             ),
             axis=1
         )
-        df_agg = df.groupby('h3_index').size().reset_index(name='n_bite_reports')
+        df_agg = df.groupby(['h3_index', df['created_at'].dt.date]).size().reset_index(name='n_bite_reports')
+        df_agg = df_agg.rename(columns={'created_at': 'date'})
     else:
-        df_agg = pd.DataFrame(columns=['h3_index', 'n_bite_reports'])
+        df_agg = pd.DataFrame(columns=['h3_index', 'date', 'n_bite_reports'])
 
     df_agg.to_csv(output_file, index=False)
 
