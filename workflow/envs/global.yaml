@@ -7,10 +7,10 @@ dependencies:
   - dask=2025.7.0
   - flatten_json=0.1.14
   - geopandas=1.1.1
+  - h3=4.3.0
   - netCDF4=1.7.2
   - rasterio=1.4.3
-  - rasterstats=0.20.0
-  - regionmask=0.13.0
   - xarray=2025.7.1
+  - xdggs=0.2.1
   - pip:
       - mosquito-alert @ git+https://github.com/Mosquito-Alert/mosquito-alert-python-sdk.git@0.1.21
