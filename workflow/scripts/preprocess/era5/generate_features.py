@@ -17,7 +17,7 @@ def main(input_files, output_file):
     last_date_ds = ds.sel(date=ds.date.max())
     last_date_ds = last_date_ds.assign(min_t2m_21d=min_t2m_21d)
 
-    df = last_date_ds.to_dataframe().reset_index()
+    df = last_date_ds.to_dataframe()
     df['h3_index'] = df['cell_ids'].apply(h3.int_to_str)
     df = df.drop(['number', 'cell_ids'], axis=1)
 
