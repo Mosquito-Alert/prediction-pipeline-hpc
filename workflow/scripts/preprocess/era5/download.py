@@ -1,7 +1,6 @@
 import argparse
 import cdsapi
 from datetime import datetime
-import fiona
 from typing import Optional
 
 CLIPPING_BUFFER = 0.5  # Buffer in degrees for clipping
@@ -9,24 +8,31 @@ CLIPPING_BUFFER = 0.5  # Buffer in degrees for clipping
 # Try to import snakemake variables, if running within Snakemake
 try:
     date_default = snakemake.params["date"]
-    vector_file_deafult = snakemake.input["vector"]
+    min_lon = snakemake.params['min_lon']
+    min_lat = snakemake.params['min_lat']
+    max_lon = snakemake.params['max_lon']
+    max_lat = snakemake.params['max_lat']
     output_file_default = snakemake.output[0]
 except NameError:
     date_default = None
-    vector_file_deafult = None
+    min_lon = None
+    min_lat = None
+    max_lon = None
+    max_lat = None
     output_file_default = None
 
-def main(date: datetime, output_file: str, clip_vector: Optional[str] = None):
+def main(date: datetime, output_file: str, min_lon: Optional[float] = None, min_lat: Optional[float] = None,
+        max_lon: Optional[float] = None, max_lat: Optional[float] = None):
     c = cdsapi.Client()
 
     extra_requests = {}
-    if clip_vector:
-        with fiona.open(clip_vector) as vector_file:
-            minx, miny, maxx, maxy = vector_file.bounds
-            extra_requests['area'] = [
-                maxy + CLIPPING_BUFFER, minx - CLIPPING_BUFFER,
-                miny - CLIPPING_BUFFER, maxx + CLIPPING_BUFFER
-            ]
+    if None not in (min_lon, min_lat, max_lon, max_lat):
+        extra_requests['area'] = [
+            max_lat + CLIPPING_BUFFER, min_lon - CLIPPING_BUFFER,
+            min_lat - CLIPPING_BUFFER, max_lon + CLIPPING_BUFFER
+        ]
+    elif any(v is not None for v in (min_lon, min_lat, max_lon, max_lat)):
+        raise ValueError("If specifying bounds, all of min_lon, min_lat, max_lon, and max_lat must be provided.")
 
     c.retrieve(
         name='reanalysis-era5-single-levels',
@@ -67,8 +73,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download ERA5 Land data via CDS API.")
     parser.add_argument('--date', type=valid_date, required=(date_default is None), default=date_default, help="Date in YYYY-MM-DD format")
     parser.add_argument('--output_file', type=str, required=(output_file_default is None), default=output_file_default, help='Output filename')
-    parser.add_argument('--clip_vector', type=str, required=(vector_file_deafult is None), default=vector_file_deafult, help='Clip vector')
+    parser.add_argument('--min_lon', type=float, default=min_lon, help='Minimum longitude')
+    parser.add_argument('--min_lat', type=float, default=min_lat, help='Minimum latitude')
+    parser.add_argument('--max_lon', type=float, default=max_lon, help='Maximum longitude')
+    parser.add_argument('--max_lat', type=float, default=max_lat, help='Maximum latitude')
 
     args = parser.parse_args()
 
-    main(date=args.date, output_file=args.output_file, clip_vector=args.clip_vector)
+    main(
+        date=args.date,
+        output_file=args.output_file,
+        min_lon=args.min_lon,
+        min_lat=args.min_lat,
+        max_lon=args.max_lon,
+        max_lat=args.max_lat
+    )

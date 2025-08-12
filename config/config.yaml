@@ -1,4 +1,10 @@
 get_sampling_effort:
   url: https://github.com/Mosquito-Alert/sampling_effort_data/raw/main/sampling_effort_daily_cellres_025.csv.gz
 
-vector_file: data/gadm_410_esp_simplified.gpkg
+h3_res: 6
+
+era5:
+  min_lon: -18.16
+  min_lat: 27.64
+  max_lon: 4.33
+  max_lat: 43.80

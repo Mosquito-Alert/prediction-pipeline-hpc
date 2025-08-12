@@ -15,16 +15,19 @@ rule daily_sampling_effort:
         "data/sampling_effort/{year}-{month}-{day}.csv"
     conda:
         "../envs/global.yaml"
-    shell:
-        "python3 workflow/scripts/preprocess/sampling_effort/filter_day.py --input_file {input} --date {wildcards.year}-{wildcards.month}-{wildcards.day} --output_file {output}"
+    params:
+        date=lambda wildcards: f"{wildcards.year}-{wildcards.month}-{wildcards.day}",
+    script:
+        "workflow/scripts/preprocess/sampling_effort/filter_date.py"
 
-rule zonal_stats_sampling_effort:
+rule convert_to_h3_sampling_effort:
     input:
-        sampling_effort="data/sampling_effort/{year}-{month}-{day}.csv",
-        vector="data/gadm_410_esp_simplified.gpkg"
+        "data/sampling_effort/{year}-{month}-{day}.csv"
     output:
         "outputs/features/sampling_effort/{year}-{month}-{day}.csv"
     conda:
         "../envs/global.yaml"
-    shell:
-        "python3 workflow/scripts/preprocess/sampling_effort/zonal_stats.py --input_file {input.sampling_effort} --vector_file {input.vector} --output_file {output}"
+    params:
+        h3_res=config['h3_res'],
+    script:
+        "workflow/scripts/preprocess/sampling_effort/convert_to_h3.py"

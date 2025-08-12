@@ -1,4 +1,5 @@
 import argparse
+import h3
 import xarray as xr
 
 try:
@@ -17,8 +18,8 @@ def main(input_files, output_file):
     last_date_ds = last_date_ds.assign(min_t2m_21d=min_t2m_21d)
 
     df = last_date_ds.to_dataframe().reset_index()
-    df = df.drop(['region', 'number', 'abbrevs'], axis=1)
-    df = df.rename(columns={'names': 'id'})
+    df['h3_index'] = df['cell_ids'].apply(h3.int_to_str)
+    df = df.drop(['number', 'cell_ids'], axis=1)
 
     # Save the combined dataset to a new NetCDF file
     df.to_csv(output_file, index=False)

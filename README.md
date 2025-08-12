@@ -44,7 +44,7 @@ mamba create -c conda-forge -c bioconda --name snakemake snakemake=9.8.1 snakede
 
 If you're running on an HPC with SLURM, install additional plugins:
 ```bash
-mamba install snakemake-executor-plugin-slurm=1.5.0 snakemake-storage-plugin-fs=1.1.2
+mamba install -n snakemake -c bioconda snakemake-executor-plugin-slurm=1.5.0 snakemake-storage-plugin-fs=1.1.2
 ```
 
 Activate the environment:
