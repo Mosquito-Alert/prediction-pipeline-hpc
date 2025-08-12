@@ -8,7 +8,7 @@ rule convert_to_h3_landcover:
     params:
         h3_res=config['h3_res'],
     script:
-        "workflow/scripts/preprocess/landcover/convert_to_h3.py"
+        "../scripts/preprocess/landcover/convert_to_h3.py"
 
 rule categorize_landcover:
     input:
@@ -18,7 +18,7 @@ rule categorize_landcover:
     conda:
         "../envs/global.yaml"
     script:
-        "workflow/scripts/preprocess/landcover/categorize.py"
+        "../scripts/preprocess/landcover/categorize.py"
 
 rule generate_features_landcover:
     input:
@@ -28,4 +28,4 @@ rule generate_features_landcover:
     conda:
         "../envs/global.yaml"
     script:
-        "workflow/scripts/preprocess/landcover/generate_features.py"
+        "../scripts/preprocess/landcover/generate_features.py"

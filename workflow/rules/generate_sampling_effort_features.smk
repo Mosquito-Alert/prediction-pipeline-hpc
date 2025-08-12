@@ -18,7 +18,7 @@ rule daily_sampling_effort:
     params:
         date=lambda wildcards: f"{wildcards.year}-{wildcards.month}-{wildcards.day}",
     script:
-        "workflow/scripts/preprocess/sampling_effort/filter_date.py"
+        "../scripts/preprocess/sampling_effort/filter_date.py"
 
 rule convert_to_h3_sampling_effort:
     input:
@@ -30,4 +30,4 @@ rule convert_to_h3_sampling_effort:
     params:
         h3_res=config['h3_res'],
     script:
-        "workflow/scripts/preprocess/sampling_effort/convert_to_h3.py"
+        "../scripts/preprocess/sampling_effort/convert_to_h3.py"

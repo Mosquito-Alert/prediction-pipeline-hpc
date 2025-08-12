@@ -9,7 +9,7 @@ rule download_bite_reports:
     params:
         date=lambda wildcards: f"{wildcards.year}-{wildcards.month}-{wildcards.day}",
     script:
-        "workflow/scripts/preprocess/bite_reports/download.py"
+        "../scripts/preprocess/bite_reports/download.py"
 
 rule convert_to_h3_bite_reports:
     input:
@@ -21,4 +21,4 @@ rule convert_to_h3_bite_reports:
     params:
         h3_res=config['h3_res'],
     script:
-        "workflow/scripts/preprocess/bite_reports/convert_to_h3.py"
+        "../scripts/preprocess/bite_reports/convert_to_h3.py"
