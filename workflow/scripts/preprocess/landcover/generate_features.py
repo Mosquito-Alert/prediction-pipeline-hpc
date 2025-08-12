@@ -19,6 +19,8 @@ def generate_features(input_file: str, output_file: str):
     for col in columns:
         df[f"perc_{col}"] = df[col] / df['total_count']
 
+    df = df.drop(columns=columns + ["total_count"])
+
     df.to_csv(output_file)
 
 if __name__ == "__main__":
