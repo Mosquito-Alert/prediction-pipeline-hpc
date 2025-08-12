@@ -5,16 +5,16 @@ include: "generate_sampling_effort_features.smk"
 
 rule generate_features:
     input:
-        "outputs/features/bite_reports/{year}-{month}-{day}.csv",
-        "outputs/features/era5/{year}-{month}-{day}.csv",
-        "outputs/features/landcover.csv",
-        "outputs/features/sampling_effort/{year}-{month}-{day}.csv"
+        sampling_effort="outputs/features/sampling_effort/{year}-{month}-{day}.csv"
+        bite_reports="outputs/features/bite_reports/{year}-{month}-{day}.csv",
+        era5="outputs/features/era5/{year}-{month}-{day}.csv",
+        landcover="outputs/features/h3_landcover.csv",
     output:
         "outputs/features/all/{year}-{month}-{day}.csv"
     conda:
         "../envs/global.yaml"
-    shell:
-        "python3 workflow/scripts/preprocess/join_features.py --input_files {input} --output_file {output}"
+    script:
+        "../scripts/preprocess/join_features.py"
 
 from datetime import datetime, timedelta
 def concat_all_features_inputs(wildcards):
@@ -32,5 +32,5 @@ rule generate_train_dataset:
         "outputs/features/train_{year}-{month}-{day}.csv"
     conda:
         "../envs/global.yaml"
-    shell:
-        "python3 workflow/scripts/preprocess/generate_train_dataset.py --input_files {input.input_files} --output_file {output}"
+    script:
+        "../scripts/preprocess/generate_train_dataset.py"
