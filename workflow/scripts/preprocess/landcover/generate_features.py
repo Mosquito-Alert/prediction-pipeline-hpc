@@ -19,7 +19,7 @@ def generate_features(input_file: str, output_file: str):
     for col in columns:
         df[f"perc_{col}"] = df[col] / df['total_count']
 
-    df.to_csv(output_file, index=False)
+    df.to_csv(output_file)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Classify selected CLC categories from a GeoTIFF file.")
