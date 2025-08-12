@@ -39,6 +39,7 @@ def main(input_file: str, output_file: str):
             'tp_sum': tp_sum
         },
     )
+    ds_agg = ds_agg.assign_coords(date=ds_agg.date.astype('datetime64[s]'))
 
     ds_agg['d2m_mean'].attrs['title'] = 'Avg Dew Point Temperature'
     ds_agg['d2m_mean'].attrs['units'] = 'degrees Celsius'
