@@ -13,7 +13,7 @@ def main(input_files, output_file):
     # Open multiple NetCDF files and concatenate them along a new dimension
     ds = xr.open_mfdataset(input_files, combine='nested', concat_dim="date", parallel=True)
 
-    min_t2m_21d = ds['t2m_mean'].min(dim='date')
+    min_t2m_21d = ds.where(ds.date < ds.date.max(), drop=True)['t2m_mean'].min(dim='date')
     last_date_ds = ds.sel(date=ds.date.max())
     last_date_ds = last_date_ds.assign(min_t2m_21d=min_t2m_21d)
 
