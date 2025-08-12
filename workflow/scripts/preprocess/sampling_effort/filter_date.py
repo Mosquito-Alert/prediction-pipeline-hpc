@@ -23,9 +23,13 @@ def main(input_file: str, output_file: str, date: str):
 
     df.drop(columns=['TigacellID'], inplace=True)
     df.rename(columns={'masked_lon': 'longitude', 'masked_lat': 'latitude'}, inplace=True)
-    
-    df['n_reports_total'] = df.filter(like='n_reports_').sum(axis=1)
-    df['n_reporters_total'] = df.filter(like='n_reporters_').sum(axis=1)
+
+    if not df.empty:
+        df['n_reports_total'] = df.filter(like='n_reports_').sum(axis=1)
+        df['n_reporters_total'] = df.filter(like='n_reporters_').sum(axis=1)
+    else:
+        df['n_reports_total'] = []
+        df['n_reporters_total'] = []
     
     df.to_csv(output_file, index=False)
 

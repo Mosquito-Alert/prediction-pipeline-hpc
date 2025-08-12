@@ -14,16 +14,20 @@ except NameError:
 def main(input_file: str, output_file: str, h3_res: int):
     df = pd.read_csv(input_file)
     df = df[df['counts_total'] > 0]
-    df['h3_index'] = df.apply(
-        lambda row: h3.latlng_to_cell(
-            row['location_point_latitude'],
-            row['location_point_longitude'],
-            h3_res
-        ),
-        axis=1
-    )
 
-    df_agg = df.groupby('h3_index').size().reset_index(name='n_bite_reports')
+    if not df.empty:
+        df['h3_index'] = df.apply(
+            lambda row: h3.latlng_to_cell(
+                row['location_point_latitude'],
+                row['location_point_longitude'],
+                h3_res
+            ),
+            axis=1
+        )
+        df_agg = df.groupby('h3_index').size().reset_index(name='n_bite_reports')
+    else:
+        df_agg = pd.DataFrame(columns=['h3_index', 'n_bite_reports'])
+
     df_agg.to_csv(output_file, index=False)
 
 if __name__ == "__main__":

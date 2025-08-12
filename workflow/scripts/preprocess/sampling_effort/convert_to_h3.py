@@ -15,7 +15,11 @@ except NameError:
 def main(input_file: str, output_file: str, h3_res: int):
     df = pd.read_csv(input_file)
 
-    df['h3_index'] = df.apply(lambda row: h3.latlng_to_cell(row['latitude'], row['longitude'], h3_res), axis=1)
+    if not df.empty:
+        df['h3_index'] = df.apply(lambda row: h3.latlng_to_cell(row['latitude'], row['longitude'], h3_res), axis=1)
+    else:
+        df['h3_index'] = []
+
     df.drop(columns=['longitude', 'latitude'], inplace=True)
 
     df_agg = df.groupby("h3_index", as_index=False).agg(
