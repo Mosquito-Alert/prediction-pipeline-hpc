@@ -13,7 +13,7 @@ except NameError:
     output_file_default = None
 
 def main(input_file: str, output_file: str, h3_res: int):
-    df = pd.read_csv(input_file)
+    df = pd.read_csv(input_file, parse_dates=['date'])
 
     if not df.empty:
         df['h3_index'] = df.apply(lambda row: h3.latlng_to_cell(row['latitude'], row['longitude'], h3_res), axis=1)
@@ -22,7 +22,7 @@ def main(input_file: str, output_file: str, h3_res: int):
 
     df.drop(columns=['longitude', 'latitude'], inplace=True)
 
-    df_agg = df.groupby("h3_index", as_index=False).agg(
+    df_agg = df.groupby(["h3_index", "date"], as_index=False).agg(
         SE=('SE', lambda x: 1 - np.prod(1 - x)),
         n_reports_total=('n_reports_total', 'sum'),
         n_reporters_total=('n_reporters_total', 'sum')
