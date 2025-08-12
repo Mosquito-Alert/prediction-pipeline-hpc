@@ -9,8 +9,8 @@ default-resources:
   runtime: attempt * 10
   tmpdir: /lscratch/tmp
   # slurm_extra: "--mail-type=BEGIN,END,FAIL --mail-user=usuario@correo"
-jobs: 30
-latency-wait: 60
+jobs: 50
+latency-wait: 20
 retries: 1
 
 default-storage-provider: fs
