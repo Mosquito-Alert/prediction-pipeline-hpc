@@ -1,4 +1,6 @@
 import argparse
+# TODO: use import h3.api.numpy_int as h3 ?
+# See: https://uber.github.io/h3-py/api_comparison#h3-api-numpy-int
 import h3
 import numpy as np
 import os
@@ -48,7 +50,7 @@ def main(input_file: str, output_file: str, h3_res: int):
     h3_cells = get_h3_cells_within(ds=ds, h3_res=h3_res)
     bbox_h3_latlng = np.array([h3.cell_to_latlng(i) for i in h3_cells])
 
-    coords = {"cells": ("h3_cell", [h3.str_to_int(h) for h in h3_cells])}
+    coords = {"cell_ids": ("h3_cell", [h3.str_to_int(h) for h in h3_cells])}
 
     ds_h3 = ds.interp(
         longitude=xr.DataArray(bbox_h3_latlng[:, 1], dims="h3_cell", coords=coords),
