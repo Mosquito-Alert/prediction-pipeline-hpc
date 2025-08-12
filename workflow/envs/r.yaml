@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+dependencies:
+  - r-base=4.3
+  - r-brms=2.22.0
+  - r-cmdstanr=0.9.0
+  - r-readr
+  - r-dplyr
+  - r-lubridate
