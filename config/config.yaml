@@ -16,5 +16,5 @@ h3_res: 6
 era5:
   min_lon: -32.43
   min_lat: 26.40
-  max_lon: 72.91
-  max_lat: 51.0
+  max_lon: 51.0
+  max_lat: 72.91
