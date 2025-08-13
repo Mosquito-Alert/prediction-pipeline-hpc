@@ -6,6 +6,8 @@ rule download_era5:
         cpus_per_task=1
     conda:
         "../envs/global.yaml"
+    group:
+        "era5_preprocess_{year}-{month}-{day}"
     params:
         date=lambda wildcards: f"{wildcards.year}-{wildcards.month}-{wildcards.day}",
         min_lon=config['era5']['min_lon'],
@@ -19,9 +21,11 @@ rule convert_to_h3_era5:
     input:
         "data/era5/raw/{year}-{month}-{day}.zip"
     output:
-        "data/era5/raw_h3/{year}-{month}-{day}.nc"
+        temp("data/era5/raw_h3/{year}-{month}-{day}.nc")
     conda:
         "../envs/global.yaml"
+    group:
+        "era5_preprocess_{year}-{month}-{day}"
     params:
         h3_res=config['h3_res'],
     script:
@@ -34,6 +38,8 @@ rule daily_stats_era5:
         "data/era5/daily_stats/{year}-{month}-{day}.nc"
     conda:
         "../envs/global.yaml"
+    group:
+        "era5_preprocess_{year}-{month}-{day}"
     script:
         "../scripts/preprocess/era5/daily_stats.py"
 

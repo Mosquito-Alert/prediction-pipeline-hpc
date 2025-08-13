@@ -15,6 +15,8 @@ rule daily_sampling_effort:
         "data/sampling_effort/{year}-{month}-{day}.csv"
     conda:
         "../envs/global.yaml"
+    group:
+        "sampling_effort_preprocess_{year}-{month}-{day}"
     params:
         date=lambda wildcards: f"{wildcards.year}-{wildcards.month}-{wildcards.day}",
     script:
@@ -27,6 +29,8 @@ rule convert_to_h3_sampling_effort:
         "outputs/features/sampling_effort/{year}-{month}-{day}.csv"
     conda:
         "../envs/global.yaml"
+    group:
+        "sampling_effort_preprocess_{year}-{month}-{day}"
     params:
         h3_res=config['h3_res'],
     script:
