@@ -2,8 +2,6 @@ rule download_bite_reports:
     output:
         "data/bite_reports/{year}-{month}-{day}.csv"
     retries: 3
-    resources:
-        api_calls=5
     conda:
         "../envs/global.yaml"
     group:
