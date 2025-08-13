@@ -4,12 +4,17 @@ get_sampling_effort:
 h3_res: 6
 
 # Get from
+# NOTE: do not use -> from rasterio.warp import transform_bounds
 # import rasterio
-# from rasterio.warp import transform_bounds
+# from pyproj import Transformer
 # src = rasterio.open('./U2018_CLC2018_V2020_20u1.tif')
+# transformer = Transformer.from_crs(src.crs, "EPSG:4326", always_xy=True)
+# bounds = src.bounds
+# min_lon, min_lat = transformer.transform(bounds.left, bounds.bottom)
+# max_lon, max_lat = transformer.transform(bounds.right, bounds.top)
 # transform_bounds(src.crs, "EPSG:4326", *src.bounds)
 era5:
-  min_lon: -56.51
-  min_lat: 24.27
+  min_lon: -32.43
+  min_lat: 26.40
   max_lon: 72.91
-  max_lat: 72.64
+  max_lat: 51.0
