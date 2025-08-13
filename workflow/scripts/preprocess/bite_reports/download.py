@@ -35,7 +35,39 @@ def main(date: str, output_file: str):
             if not api_response.next:
                 break
             page += 1
-    df = pd.DataFrame([flatten(b.model_dump(by_alias=True)) for b in bites])
+    # NOTE: need to force columns in case no bites found.
+    df = pd.DataFrame(
+        [flatten(b.model_dump(by_alias=True)) for b in bites],
+        columns=[
+            'uuid',
+            'short_id',
+            'user_uuid',
+            'created_at',
+            'created_at_local',
+            'sent_at',
+            'received_at',
+            'updated_at',
+            'location_source',
+            'location_point_latitude',
+            'location_point_longitude',
+            'location_timezone',
+            'location_display_name',
+            'location_country_id',
+            'location_country_name_en',
+            'location_country_iso3_code',
+            'note',
+            'published',
+            'event_environment',
+            'event_moment',
+            'counts_total',
+            'counts_head',
+            'counts_left_arm',
+            'counts_right_arm',''
+            'counts_chest',
+            'counts_left_leg',
+            'counts_right_leg'
+        ]
+    )
     df.to_csv(output_file, index=False)
 
 if __name__ == "__main__":
