@@ -6,6 +6,8 @@ rule download_bite_reports:
         api_calls=5
     conda:
         "../envs/global.yaml"
+    group:
+        "bite_preprocess_{year}-{month}-{day}"
     params:
         date=lambda wildcards: f"{wildcards.year}-{wildcards.month}-{wildcards.day}",
     script:
@@ -18,6 +20,8 @@ rule convert_to_h3_bite_reports:
         "outputs/features/bite_reports/{year}-{month}-{day}.csv"
     conda:
         "../envs/global.yaml"
+    group:
+        "bite_preprocess_{year}-{month}-{day}"
     params:
         h3_res=config['h3_res'],
     script:
