@@ -13,15 +13,13 @@ jobs: 50
 latency-wait: 20
 retries: 1
 
-default-storage-provider: fs
-# remote-job-local-storage-prefix: /lscratch/$USER/$JOBID
-remote-job-local-storage-prefix: /lscratch/$USER/$SLURM_JOB_ID
-local-storage-prefix: /home/$USER
-shared-fs-usage:
-  - persistence
-  - software-deployment
-  - sources
-  - source-cache
+# default-storage-provider: fs
+# # remote-job-local-storage-prefix: /lscratch/$USER/$JOBID
+# remote-job-local-storage-prefix: /lscratch/$USER/$SLURM_JOB_ID
+# # local-storage-prefix: /home/$USER
+# shared-fs-usage:
+#   - persistence
+#   - software-deployment
+#   - sources
+#   - source-cache
 
-
-# Also do the: --slurm-requeue
