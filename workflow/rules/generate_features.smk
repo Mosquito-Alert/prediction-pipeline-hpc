@@ -8,7 +8,7 @@ rule generate_features:
         sampling_effort="outputs/features/sampling_effort/{year}-{month}-{day}.csv",
         bite_reports="outputs/features/bite_reports/{year}-{month}-{day}.csv",
         era5="outputs/features/era5/{year}-{month}-{day}.csv",
-        landcover="outputs/features/h3_landcover.csv",
+        landcover="outputs/features/landcover/h3_landcover.csv",
     output:
         "outputs/features/all/{year}-{month}-{day}.csv"
     conda:
