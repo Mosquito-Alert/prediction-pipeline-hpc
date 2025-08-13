@@ -2,8 +2,7 @@ rule download_era5:
     output:
         temp("data/era5/raw/{year}-{month}-{day}.zip", group_jobs=True)
     resources:
-        api_calls=5,
-        cpus_per_task=1
+        runtime="3h"
     conda:
         "../envs/global.yaml"
     group:
