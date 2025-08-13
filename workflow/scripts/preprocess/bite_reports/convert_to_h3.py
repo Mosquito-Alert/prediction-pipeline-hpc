@@ -12,10 +12,11 @@ except NameError:
     output_file_default = None
 
 def main(input_file: str, output_file: str, h3_res: int):
-    df = pd.read_csv(input_file, parse_dates=['created_at'])
-    df = df[df['counts_total'] > 0]
+    df = pd.read_csv(input_file)
 
     if not df.empty:
+        df = df[df['counts_total'] > 0]
+        df['created_at'] = pd.to_datetime(df['created_at'])
         df['h3_index'] = df.apply(
             lambda row: h3.latlng_to_cell(
                 row['location_point_latitude'],
