@@ -10,34 +10,35 @@ include: "rules/generate_features.smk"
 
 rule train:
     input:
-        "outputs/features/train_{year}-{month}-{day}.csv"
+        "outputs/features/train/{year}-{month}-{day}.csv"
     output:
-        "outputs/train/model_{year}-{month}-{day}.rds"
+        "outputs/model/{year}-{month}-{day}.rds"
     conda:
         "envs/r.yaml"
-    shell:
-        "Rscript workflow/scripts/train.R {input} {output}"
+    threads: 8
+    script:
+        "./scripts/train.R"
 
 def find_latest_model(wildcards):
     date = datetime(int(wildcards.year), int(wildcards.month), int(wildcards.day))
     for delta in range(0, 16):  # search back 0 to 15 days
         check_date = date - timedelta(days=delta)
-        path = f"outputs/train/model_{check_date.year}-{check_date.month:02d}-{check_date.day:02d}.rds"
+        path = f"outputs/model/{check_date.year}-{check_date.month:02d}-{check_date.day:02d}.rds"
         if os.path.exists(path):
             return path
     # If none found, force training for current date:
     # (This can be handled by making the training rule output the model)
     # So here we return the model path for the current date (which might not exist yet)
     # and Snakemake will trigger the training rule.
-    return f"outputs/train/model_{date.year}-{date.month:02d}-{date.day:02d}.rds"
+    return f"outputs/model/{date.year}-{date.month:02d}-{date.day:02d}.rds"
 
 rule predict:
     input:
         model=find_latest_model,
-        data="outputs/features/all/{year}-{month}-{day}.csv"
+        data="outputs/features/merged/{year}-{month}-{day}.csv"
     output:
         protected("outputs/predict/{year}-{month}-{day}.csv")
     conda:
         "envs/r.yaml"
     shell:
-        "Rscript workflow/scripts/predict.R {input.model} {input.data} {output}"
+        "./scripts/predict.R"

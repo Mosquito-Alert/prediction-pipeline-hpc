@@ -1,10 +1,6 @@
-# Parse command line arguments
-args <- commandArgs(trailingOnly = TRUE)
-if(length(args) < 1) {
-    stop("Please provide the path to the features CSV file as the first argument.")
-}
-features_file <- args[1]
-output_file <- args[2]
+# Use snakemake S4 object
+features_file <- snakemake@input[[1]]
+output_file   <- snakemake@output[[1]]
 
 # Load necessary libraries
 library(brms)
@@ -16,20 +12,23 @@ library(lubridate)
 # Set MCMC parameters
 iteret <- 5000
 wup <- 2000
-nchains <- 4
+nchains <- snakemake@threads
 threads_per_chain <- 1
 
 # Load data
 features <- read_csv(features_file) %>%
-    mutate(year = year(as.Date(date)))
+    mutate(
+        year = year(as.Date(date)),
+        has_bite_reports = n_bite_reports > 0
+    )
 
-features_clean <- features[!is.na(features$min_t2m_21d), ]
+# features_clean <- features[!is.na(features$min_t2m_21d), ]
 features_clean <- features[!is.na(features$SE), ]
 
 model <- brm(
     has_bite_reports ~ poly(min_t2m_21d, 2) + 
         perc_agricultural + perc_other  + perc_discont_urban_fabric +
-        (1 | id) + (1 | year) + 
+        (1 | h3_index) + (1 | year) +
         offset(log(SE)),
     data = features_clean,
     prior = set_prior("cauchy(0,2.5)", class="b"),
