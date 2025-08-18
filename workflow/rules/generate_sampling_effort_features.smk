@@ -10,7 +10,7 @@ rule download_sampling_effort:
 
 rule daily_sampling_effort:
     input:
-        "data/sampling_effort/sampling_effort_daily_cellres_025.csv.gz"
+        ancient("data/sampling_effort/sampling_effort_daily_cellres_025.csv.gz")
     output:
         "data/sampling_effort/{year}-{month}-{day}.csv"
     conda:
