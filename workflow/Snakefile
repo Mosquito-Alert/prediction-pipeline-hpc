@@ -16,6 +16,8 @@ rule train:
     conda:
         "envs/r.yaml"
     threads: 8
+    resources:
+        runtime="6h"
     script:
         "./scripts/train.R"
 
