@@ -43,7 +43,7 @@ def main(input_file: str, output_file: str, h3_res: int):
         if not extracted_files:
             raise FileNotFoundError("No NetCDF files found in the unzipped content.")
 
-        ds = xr.open_mfdataset(extracted_files)
+        ds = xr.open_mfdataset(extracted_files, drop_variables=['expver'])
 
     h3_cells_int = get_h3_cells_within(ds=ds, h3_res=h3_res)
     bbox_h3_latlng = np.array([h3.cell_to_latlng(i) for i in h3_cells_int])
